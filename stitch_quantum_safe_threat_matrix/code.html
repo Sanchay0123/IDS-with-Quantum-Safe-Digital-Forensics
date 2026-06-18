@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SENTINEL_QS - Threat Matrix</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Courier Prime', monospace;
+            background-color: #0d1117;
+            color: #dee4d9;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0f150f;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #30363d;
+        }
+        .glow-active {
+            box-shadow: 0 0 8px #7ee787;
+        }
+        .terminal-glow {
+            text-shadow: 0 0 5px rgba(179, 255, 179, 0.3);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#41474f",
+                        "on-error-container": "#ffdad6",
+                        "status-critical": "#f85149",
+                        "on-surface-variant": "#becaba",
+                        "on-secondary-fixed": "#161c23",
+                        "surface-tint": "#74dd7e",
+                        "on-primary-fixed": "#002106",
+                        "outline": "#889485",
+                        "inverse-on-surface": "#2c322b",
+                        "text-muted": "#8b949e",
+                        "on-tertiary-container": "#7a4f33",
+                        "surface-variant": "#30362f",
+                        "on-tertiary-fixed": "#311301",
+                        "secondary-fixed-dim": "#c1c7d0",
+                        "surface-container": "#1b211a",
+                        "tertiary-container": "#ffc4a1",
+                        "on-surface": "#dee4d9",
+                        "surface-container-high": "#262c24",
+                        "primary": "#b3ffb3",
+                        "text-primary": "#c9d1d9",
+                        "on-background": "#dee4d9",
+                        "surface": "#0f150f",
+                        "error-container": "#93000a",
+                        "background-main": "#0d1117",
+                        "background": "#0f150f",
+                        "status-warning": "#d29922",
+                        "on-secondary": "#2b3138",
+                        "tertiary-fixed-dim": "#f4ba98",
+                        "secondary-container": "#41474f",
+                        "outline-variant": "#3f4a3d",
+                        "secondary-fixed": "#dde3ec",
+                        "on-tertiary-fixed-variant": "#653d23",
+                        "error": "#ffb4ab",
+                        "on-primary": "#003910",
+                        "on-tertiary": "#4b270f",
+                        "secondary": "#c1c7d0",
+                        "surface-container-lowest": "#0a100a",
+                        "inverse-surface": "#dee4d9",
+                        "primary-fixed-dim": "#74dd7e",
+                        "tertiary-fixed": "#ffdbc8",
+                        "on-primary-fixed-variant": "#00531b",
+                        "surface-bright": "#353b33",
+                        "surface-container-highest": "#30362f",
+                        "on-error": "#690005",
+                        "surface-container-low": "#171d16",
+                        "surface-dim": "#0f150f",
+                        "on-secondary-container": "#b0b5be",
+                        "surface-card": "#161b22",
+                        "primary-fixed": "#90fa97",
+                        "on-primary-container": "#006823",
+                        "primary-container": "#7ee787",
+                        "inverse-primary": "#006e26",
+                        "tertiary": "#ffe8dd"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "container-max": "1440px",
+                        "margin": "24px",
+                        "gutter": "16px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Courier Prime"],
+                        "body-lg": ["Courier Prime"],
+                        "label-sm": ["Courier Prime"],
+                        "code-block": ["Courier Prime"],
+                        "body-md": ["Courier Prime"],
+                        "headline-lg": ["Courier Prime"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["18px", {"lineHeight": "24px", "letterSpacing": "0.02em", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                        "code-block": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "0.05em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-main selection:bg-primary-container selection:text-on-primary-container overflow-hidden h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline-variant flex justify-between items-center w-full px-margin py-4 sticky top-0 z-50">
+<div class="flex items-center gap-6">
+<span class="text-headline-lg font-headline-lg text-primary dark:text-primary uppercase tracking-widest terminal-glow">SENTINEL_QS</span>
+<div class="h-6 w-[1px] bg-outline-variant"></div>
+<h1 class="font-headline-md text-headline-md tracking-widest uppercase text-on-surface">Threat Matrix</h1>
+</div>
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 px-3 py-1.5 border border-primary/30 rounded bg-primary/5">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary glow-active"></span>
+</span>
+<span class="text-label-sm font-label-sm text-primary uppercase tracking-wider">WebSocket Active</span>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<button class="hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors p-2 active:opacity-80 transition-all">
+<span class="material-symbols-outlined">terminal</span>
+</button>
+<button class="hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors p-2 active:opacity-80 transition-all">
+<span class="material-symbols-outlined">shield_with_heart</span>
+</button>
+<button class="hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors p-2 active:opacity-80 transition-all">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- SideNavBar -->
+<aside class="bg-surface-container dark:bg-surface-container border-r border-outline-variant dark:border-outline-variant flex flex-col h-full py-margin w-64 hidden md:flex">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-surface-container-highest border border-outline-variant flex items-center justify-center rounded-sm">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+<div>
+<div class="font-headline-md text-headline-md text-primary leading-tight">NODE_01</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant uppercase opacity-70">Level 4 Clearance</div>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-2 space-y-1">
+<a class="bg-primary-container dark:bg-primary-container text-on-primary-container dark:text-on-primary-container border-l-4 border-primary px-4 py-3 flex items-center gap-3 transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">sensors</span>
+<span class="font-body-md text-body-md uppercase">Live Feed</span>
+</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:text-primary hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-body-md text-body-md uppercase">Master Archive</span>
+</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:text-primary hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">query_stats</span>
+<span class="font-body-md text-body-md uppercase">Entropy Analysis</span>
+</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:text-primary hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">hub</span>
+<span class="font-body-md text-body-md uppercase">Network Topology</span>
+</a>
+</nav>
+<div class="px-4 mt-auto space-y-6">
+<button class="w-full py-3 border border-status-critical text-status-critical hover:bg-status-critical hover:text-white transition-all uppercase font-bold text-body-md tracking-tighter">
+                    Initiate Lockdown
+                </button>
+<div class="space-y-1 border-t border-outline-variant pt-4">
+<a class="text-on-surface-variant dark:text-on-surface-variant px-2 py-2 flex items-center gap-3 text-label-sm hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">description</span>
+<span class="uppercase">System Logs</span>
+</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant px-2 py-2 flex items-center gap-3 text-label-sm hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">help_outline</span>
+<span class="uppercase">Help</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="flex-1 flex flex-col overflow-hidden relative">
+<!-- Background WebGL Shader (Conceptual Overlay) -->
+
+<!-- Dashboard Content Container -->
+<div class="flex-1 p-margin overflow-y-auto custom-scrollbar z-10">
+<!-- Navigation Tabs -->
+<div class="flex items-center gap-0 border-b border-outline-variant mb-margin">
+<button class="px-6 py-3 text-primary border-b-2 border-primary font-bold uppercase tracking-wider flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-status-critical glow-active"></span>
+                        🔴 Live Feed (Upcoming)
+                    </button>
+<button class="px-6 py-3 text-on-surface-variant hover:text-on-surface transition-colors uppercase tracking-wider flex items-center gap-2">
+                        📚 Master Archive (All Logs)
+                    </button>
+</div>
+<!-- Alert Feed -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Alert Cards Cluster -->
+<div class="col-span-12 lg:col-span-8 space-y-4">
+<!-- Alert Card 1: Critical -->
+<div class="bg-surface-card border border-outline-variant p-5 rounded-lg hover:border-primary/50 transition-colors group">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-4">
+<div class="bg-status-critical/10 text-status-critical px-2 py-0.5 border border-status-critical text-label-sm font-bold tracking-widest uppercase">CRITICAL</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm tracking-tighter">TIMESTAMP: 2023-10-27T14:22:09.432Z</div>
+</div>
+<div class="text-primary font-label-sm text-label-sm bg-primary/10 px-2 py-0.5 rounded border border-primary/20">AI-ANOMALY</div>
+</div>
+<div class="mb-4">
+<h3 class="text-headline-md font-headline-md text-on-surface mb-1">UNAUTHORIZED QUANTUM DECRYPTION ATTEMPT</h3>
+<p class="text-on-surface-variant text-body-md opacity-80">Origin: 192.168.1.104 (Node_Shanghai_Sub). Targeted sensitive volume: /CRYPT/LEDGER_MAIN.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+<div class="space-y-1">
+<div class="text-[10px] text-primary uppercase font-bold tracking-widest">[ML-KEM ENVELOPE]</div>
+<div class="bg-[#090c10] border border-outline-variant p-3 font-code-block text-[11px] text-primary/80 overflow-x-auto whitespace-pre break-all">
+                                        hR8+X9kL2pZ1qM5nB7vC4xS0aD3fG6hJ9kL2pZ1qM5nB7vC4xS0aD3fG6hJ9kL2pZ1qM5nB7vC4xS0aD3fG6hJ9kL2pZ1qM5nB7vC4xS0aD3fG6hJ
+                                    </div>
+</div>
+<div class="space-y-1">
+<div class="text-[10px] text-primary uppercase font-bold tracking-widest">[ML-DSA SIGNATURE]</div>
+<div class="bg-[#090c10] border border-outline-variant p-3 font-code-block text-[11px] text-primary/80 overflow-x-auto whitespace-pre break-all">
+                                        0x7F4E5A2B9C8D7E6F5A4B3C2D1E0F9A8B7C6D5E4F3A2B1C0D9E8F7A6B5C4D3E2F
+                                    </div>
+</div>
+</div>
+</div>
+<!-- Alert Card 2: High -->
+<div class="bg-surface-card border border-outline-variant p-5 rounded-lg hover:border-status-warning/50 transition-colors">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-4">
+<div class="bg-status-warning/10 text-status-warning px-2 py-0.5 border border-status-warning text-label-sm font-bold tracking-widest uppercase">HIGH SEVERITY</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm tracking-tighter">TIMESTAMP: 2023-10-27T14:20:11.201Z</div>
+</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm bg-surface-container-highest px-2 py-0.5 rounded border border-outline-variant">RULE-BASED</div>
+</div>
+<div class="mb-4">
+<h3 class="text-headline-md font-headline-md text-on-surface mb-1">RECURSIVE PORT SCAN DETECTED</h3>
+<p class="text-on-surface-variant text-body-md opacity-80">Sequence pattern matching known reconnaissance footprint. Range: 1-1024.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+<div class="space-y-1">
+<div class="text-[10px] text-primary uppercase font-bold tracking-widest">[PACKET FRAGMENT]</div>
+<div class="bg-[#090c10] border border-outline-variant p-3 font-code-block text-[11px] text-primary/60 overflow-x-auto whitespace-pre break-all">
+                                        45 00 00 3c 1c 46 40 00 40 06 b1 e6 c0 a8 00 01 c0 a8 00 02 00 15 00 50 00 00 00 00 00 00 00 00 a0 02 72 10
+                                    </div>
+</div>
+<div class="space-y-1">
+<div class="text-[10px] text-primary uppercase font-bold tracking-widest">[TLS FINGERPRINT]</div>
+<div class="bg-[#090c10] border border-outline-variant p-3 font-code-block text-[11px] text-primary/60 overflow-x-auto whitespace-pre break-all">
+                                        ja3: 771,4865-4866-4867-49195-49199-49196,0-23-65281-10-11-35-16-5-13-18-51-45-43-27-21,29-23-24,0
+                                    </div>
+</div>
+</div>
+</div>
+<!-- Alert Card 3: Neutral -->
+<div class="bg-surface-card border border-outline-variant p-5 rounded-lg opacity-80">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-4">
+<div class="bg-surface-container-highest text-on-surface-variant px-2 py-0.5 border border-outline-variant text-label-sm font-bold tracking-widest uppercase">INFO</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm tracking-tighter">TIMESTAMP: 2023-10-27T14:15:45.890Z</div>
+</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm bg-surface-container-highest px-2 py-0.5 rounded border border-outline-variant">SYSTEM-MONITOR</div>
+</div>
+<div class="mb-4">
+<h3 class="text-headline-md font-headline-md text-on-surface mb-1">ENTROPY POOL RE-SEED COMPLETE</h3>
+<p class="text-on-surface-variant text-body-md opacity-80">Hardware RNG synchronization verified. Quality: 99.98%.</p>
+</div>
+</div>
+</div>
+<!-- Side Stats / Info Panel -->
+<div class="col-span-12 lg:col-span-4 space-y-gutter">
+<!-- Stats Card -->
+<div class="bg-surface-card border border-outline-variant p-6 rounded">
+<h4 class="text-primary font-bold uppercase tracking-widest text-label-sm mb-4 border-b border-outline-variant pb-2">Network Health</h4>
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<span class="text-body-md uppercase text-on-surface-variant">Active Nodes</span>
+<span class="text-headline-md font-bold text-primary">12 / 12</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-body-md uppercase text-on-surface-variant">Throughput</span>
+<span class="text-headline-md font-bold text-primary">4.2 GB/S</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-body-md uppercase text-on-surface-variant">Alert Frequency</span>
+<span class="text-headline-md font-bold text-status-warning">0.43/MIN</span>
+</div>
+</div>
+</div>
+<!-- System Map Placeholder -->
+<div class="bg-surface-card border border-outline-variant overflow-hidden rounded relative h-64 flex flex-col">
+<div class="p-3 bg-surface border-b border-outline-variant flex justify-between items-center">
+<span class="text-label-sm font-bold uppercase tracking-tighter text-primary">Global Node Map</span>
+<span class="material-symbols-outlined text-label-sm">map</span>
+</div>
+<div class="flex-1 bg-surface-dim relative group">
+<div class="absolute inset-0 opacity-40 grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="A dark, high-contrast digital world map with neon green glowing lines representing global data routes. The map is minimalist and technical, with small glowing dots indicating data centers in a dark mode aesthetic with a Brutalist layout." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAu1eoxOHHJYg9wVu1rj3ig3zBuu5Vsm_DJZmnyk9BCu-RV-TqtWdtQAhk1vE_Nm6n41m_1VjFiplAX0hdhkT8wn4ch_qkqjeeyBxSWxVNi0rhiQRODaexGyyejNOJrJST5G4c9BcR2eyJTXYZmIeceMi56z6ZSXglthIOC7Mq6iNFeS638raMjipbwLla1WND9wXMfxujAkfwQq9QsZJxbc0B7nXZ-ZR31qHb2Sy24wvCFQ0QC8oZlnOeXYipVmLvx3dNEXz63NYdX')">
+</div>
+<!-- UI Overlays on map -->
+<div class="absolute top-4 left-4 flex flex-col gap-1">
+<div class="flex items-center gap-2 bg-black/80 p-1 px-2 border border-primary/20 rounded">
+<div class="w-1.5 h-1.5 rounded-full bg-status-critical shadow-sm shadow-status-critical"></div>
+<span class="text-[9px] uppercase tracking-widest">SHANGHAI_ACTIVE</span>
+</div>
+<div class="flex items-center gap-2 bg-black/80 p-1 px-2 border border-primary/20 rounded">
+<div class="w-1.5 h-1.5 rounded-full bg-primary shadow-sm shadow-primary"></div>
+<span class="text-[9px] uppercase tracking-widest">SAN_JOSE_OK</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Code Audit Log Small -->
+<div class="bg-surface-card border border-outline-variant p-4 rounded h-64 overflow-hidden flex flex-col">
+<h4 class="text-primary font-bold uppercase tracking-widest text-label-sm mb-2">Internal Cryptographic Log</h4>
+<div class="flex-1 overflow-y-auto custom-scrollbar font-code-block text-[10px] text-on-surface-variant/60 leading-relaxed bg-surface-container-lowest p-2 border border-outline-variant">
+<div>[14:22:01] SEC_KERNEL_0: PQC ENGINE START</div>
+<div>[14:22:02] ML-KEM: KeyPair generated (256-bit)</div>
+<div>[14:22:05] ML-DSA: Signature check PASS (Hash: 0xA4F2)</div>
+<div class="text-status-warning">[14:22:09] WARN: Entropy dip detected (0.91 -&gt; 0.88)</div>
+<div>[14:22:12] SYSTEM: Buffer flush successful</div>
+<div>[14:22:15] SEC_KERNEL_0: Re-syncing clock with UTC</div>
+<div>[14:22:18] INFO: New connection peer: 185.112.x.x</div>
+<div>[14:22:20] SEC_KERNEL_0: Rotating session keys...</div>
+<div class="animate-pulse text-primary">&gt; MONITORING...</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Background Decoration Grid -->
+<div class="fixed inset-0 pointer-events-none opacity-[0.03] z-[-1]" style="background-image: linear-gradient(#7ee787 1px, transparent 1px), linear-gradient(90deg, #7ee787 1px, transparent 1px); background-size: 40px 40px;"></div>
+<script>
+        // Simple Micro-interactions
+        document.querySelectorAll('.bg-surface-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                // Subtle hover effect logic if needed
+            });
+        });
+
+        // Simulating live data updates
+        setInterval(() => {
+            const time = new Date().toISOString();
+            const logs = document.querySelectorAll('.font-code-block')[2];
+            if (logs) {
+                const newLog = document.createElement('div');
+                newLog.innerHTML = `[${new Date().toLocaleTimeString()}] PING: Network Latency check ${Math.floor(Math.random() * 20)}ms`;
+                logs.prepend(newLog);
+                if (logs.children.length > 50) logs.removeChild(logs.lastChild);
+            }
+        }, 3000);
+    </script>
+</body></html>

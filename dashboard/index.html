@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>SENTINEL_QS - Threat Matrix</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style>
+        body {
+            font-family: 'Courier Prime', monospace;
+            background-color: #0d1117;
+            color: #dee4d9;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0f150f; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #30363d; }
+        .glow-active { box-shadow: 0 0 8px #7ee787; }
+        .glow-offline { box-shadow: 0 0 8px #f85149; }
+        .terminal-glow { text-shadow: 0 0 5px rgba(179, 255, 179, 0.3); }
+        .hidden-tab { display: none !important; }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "status-critical": "#f85149",
+                        "status-warning": "#d29922",
+                        "primary": "#b3ffb3",
+                        "primary-container": "#7ee787",
+                        "surface": "#0f150f",
+                        "surface-card": "#161b22",
+                        "outline-variant": "#3f4a3d",
+                        "on-surface-variant": "#becaba",
+                        "surface-container-highest": "#30362f",
+                        "background-main": "#0d1117"
+                    },
+                    fontFamily: {
+                        "headline-md": ["Courier Prime"],
+                        "label-sm": ["Courier Prime"],
+                        "code-block": ["Courier Prime"],
+                        "body-md": ["Courier Prime"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background-main overflow-hidden h-screen flex flex-col">
+    <header class="bg-surface border-b border-outline-variant flex justify-between items-center w-full px-6 py-4 sticky top-0 z-50">
+        <div class="flex items-center gap-6">
+            <span class="text-[24px] font-bold text-primary uppercase tracking-widest terminal-glow">SENTINEL_QS</span>
+            <div class="h-6 w-[1px] bg-outline-variant"></div>
+            <h1 class="text-[18px] font-bold tracking-widest uppercase">Threat Matrix</h1>
+        </div>
+        <div class="flex items-center gap-8">
+            <div id="ws-status-badge" class="flex items-center gap-3 px-3 py-1.5 border border-status-warning/30 rounded bg-status-warning/5 transition-colors">
+                <span class="relative flex h-2.5 w-2.5">
+                    <span id="ws-status-ping" class="absolute inline-flex h-full w-full rounded-full bg-status-warning opacity-75"></span>
+                    <span id="ws-status-dot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-status-warning"></span>
+                </span>
+                <span id="ws-status-text" class="text-[12px] text-status-warning uppercase tracking-wider">Connecting...</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <aside class="bg-[#1b211a] border-r border-outline-variant flex flex-col h-full py-6 w-64 hidden md:flex">
+            <div class="px-6 mb-8">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-surface-container-highest border border-outline-variant flex items-center justify-center rounded-sm">
+                        <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">security</span>
+                    </div>
+                    <div>
+                        <div class="text-[18px] font-bold text-primary leading-tight">NODE_01</div>
+                        <div class="text-[12px] text-on-surface-variant uppercase opacity-70">Level 4 Clearance</div>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex-1 px-2 space-y-1">
+                <a class="bg-primary-container text-[#006823] border-l-4 border-primary px-4 py-3 flex items-center gap-3" href="#">
+                    <span class="material-symbols-outlined">sensors</span>
+                    <span class="text-[14px] uppercase font-bold">Live Feed</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="flex-1 flex flex-col overflow-hidden relative">
+            <div class="flex-1 p-6 overflow-y-auto custom-scrollbar z-10">
+                
+                <div class="flex items-center gap-0 border-b border-outline-variant mb-6">
+                    <button id="btn-live" onclick="switchTab('live')" class="px-6 py-3 text-primary border-b-2 border-primary font-bold uppercase tracking-wider flex items-center gap-2 transition-all">
+                        <span class="w-2 h-2 rounded-full bg-status-critical glow-active"></span>
+                        🔴 Live Feed (Upcoming)
+                    </button>
+                    <button id="btn-archive" onclick="switchTab('archive')" class="px-6 py-3 text-on-surface-variant hover:text-primary transition-colors uppercase tracking-wider flex items-center gap-2 border-b-2 border-transparent">
+                        📚 Master Archive (All Logs)
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-12 gap-4">
+                    <div class="col-span-12 lg:col-span-8 relative">
+                        
+                        <div id="live-feed" class="space-y-4">
+                            <div id="live-empty" class="text-on-surface-variant italic py-4">Awaiting live network events...</div>
+                        </div>
+
+                        <div id="archive-feed" class="space-y-4 hidden-tab">
+                            <div id="archive-empty" class="text-on-surface-variant italic py-4">Loading historical forensics...</div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-span-12 lg:col-span-4 space-y-4">
+                        <div class="bg-surface-card border border-outline-variant p-6 rounded">
+                            <h4 class="text-primary font-bold uppercase tracking-widest text-[12px] mb-4 border-b border-outline-variant pb-2">Engine Status</h4>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[14px] uppercase text-on-surface-variant">Decoupled Broker</span>
+                                    <span class="text-[18px] font-bold text-primary">ONLINE</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[14px] uppercase text-on-surface-variant">Deduplication</span>
+                                    <span class="text-[18px] font-bold text-primary">ACTIVE</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="fixed inset-0 pointer-events-none opacity-[0.03] z-[-1]" style="background-image: linear-gradient(#7ee787 1px, transparent 1px), linear-gradient(90deg, #7ee787 1px, transparent 1px); background-size: 40px 40px;"></div>
+
+    <script>
+        const liveFeed = document.getElementById('live-feed');
+        const archiveFeed = document.getElementById('archive-feed');
+        const btnLive = document.getElementById('btn-live');
+        const btnArchive = document.getElementById('btn-archive');
+        
+        // Tab Switching Logic
+        function switchTab(target) {
+            if (target === 'live') {
+                liveFeed.classList.remove('hidden-tab');
+                archiveFeed.classList.add('hidden-tab');
+                btnLive.classList.add('text-primary', 'border-primary');
+                btnLive.classList.remove('text-on-surface-variant', 'border-transparent');
+                btnArchive.classList.remove('text-primary', 'border-primary');
+                btnArchive.classList.add('text-on-surface-variant', 'border-transparent');
+            } else {
+                archiveFeed.classList.remove('hidden-tab');
+                liveFeed.classList.add('hidden-tab');
+                btnArchive.classList.add('text-primary', 'border-primary');
+                btnArchive.classList.remove('text-on-surface-variant', 'border-transparent');
+                btnLive.classList.remove('text-primary', 'border-primary');
+                btnLive.classList.add('text-on-surface-variant', 'border-transparent');
+            }
+        }
+
+        // Tailor styling based on threat severity
+        function getSeverityClasses(severity) {
+            if (severity === 'CRITICAL') return 'bg-status-critical/10 text-status-critical border-status-critical';
+            if (severity === 'HIGH') return 'bg-status-warning/10 text-status-warning border-status-warning';
+            return 'bg-surface-container-highest text-on-surface-variant border-outline-variant';
+        }
+
+        // Generate the DOM nodes for an alert based on Stitch Design
+        function createAlertElement(data) {
+            const sevClass = getSeverityClasses(data.severity);
+            const alertHtml = `
+                <div class="bg-surface-card border border-outline-variant p-5 rounded-lg hover:border-primary/50 transition-colors group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-4">
+                            <div class="${sevClass} px-2 py-0.5 border text-[12px] font-bold tracking-widest uppercase">${data.severity}</div>
+                            <div class="text-on-surface-variant text-[12px] tracking-tighter">TIMESTAMP: ${data.timestamp}</div>
+                        </div>
+                        <div class="text-primary text-[12px] bg-primary/10 px-2 py-0.5 rounded border border-primary/20">${data.threat_name || data.engine}</div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                        <div class="space-y-1">
+                            <div class="text-[10px] text-primary uppercase font-bold tracking-widest">[ML-KEM ENVELOPE]</div>
+                            <div class="bg-[#090c10] border border-outline-variant p-3 font-[Courier_Prime] text-[11px] text-primary/80 overflow-x-auto whitespace-pre break-all custom-scrollbar">${data.kem_envelope}</div>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="text-[10px] text-primary uppercase font-bold tracking-widest">[ML-DSA SIGNATURE]</div>
+                            <div class="bg-[#090c10] border border-outline-variant p-3 font-[Courier_Prime] text-[11px] text-primary/80 overflow-x-auto whitespace-pre break-all custom-scrollbar">${data.mldsa_signature}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = alertHtml.trim();
+            return wrapper.firstChild;
+            }
+
+        // Update WebSocket UI Status Header
+        function updateStatus(state) {
+            const text = document.getElementById('ws-status-text');
+            const badge = document.getElementById('ws-status-badge');
+            const dot = document.getElementById('ws-status-dot');
+            const ping = document.getElementById('ws-status-ping');
+
+            if (state === 'connected') {
+                text.innerText = 'WebSocket Active';
+                badge.className = 'flex items-center gap-3 px-3 py-1.5 border border-primary/30 rounded bg-primary/5 transition-colors';
+                text.className = 'text-[12px] text-primary uppercase tracking-wider';
+                dot.className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-primary glow-active';
+                ping.className = 'animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75';
+            } else {
+                text.innerText = 'Connection Lost';
+                badge.className = 'flex items-center gap-3 px-3 py-1.5 border border-status-critical/30 rounded bg-status-critical/5 transition-colors';
+                text.className = 'text-[12px] text-status-critical uppercase tracking-wider';
+                dot.className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-status-critical glow-offline';
+                ping.className = 'hidden';
+            }
+        }
+
+        // 1. Fetch Historical Data
+        fetch('http://localhost:8000/api/history')
+            .then(res => {
+                if (!res.ok) throw new Error("Database not ready.");
+                return res.json();
+            })
+            .then(logs => {
+                if (Array.isArray(logs) && logs.length > 0) {
+                    document.getElementById('archive-empty').style.display = 'none';
+                    logs.reverse().forEach(log => {
+                        archiveFeed.prepend(createAlertElement(log));
+                    });
+                } else {
+                    document.getElementById('archive-empty').innerText = "No historical logs found.";
+                }
+                connectWebSocket();
+            })
+            .catch(err => {
+                document.getElementById('archive-empty').innerText = "Database connection unavailable.";
+                connectWebSocket();
+            });
+
+        // 2. Open Live WebSocket
+        function connectWebSocket() {
+            const ws = new WebSocket('ws://localhost:8000/ws/alerts');
+
+            ws.onopen = () => updateStatus('connected');
+            
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                
+                document.getElementById('live-empty').style.display = 'none';
+                document.getElementById('archive-empty').style.display = 'none';
+                
+                // Route to both containers
+                liveFeed.prepend(createAlertElement(data));
+                archiveFeed.prepend(createAlertElement(data));
+            };
+
+            ws.onclose = () => updateStatus('disconnected');
+        }
+    </script>
+</body>
+</html>

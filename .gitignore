@@ -1,0 +1,16 @@
+# Python Environment
+__pycache__/
+.venv/
+*.pyc
+
+# Local Threat Matrices
+matrix.yar
+
+# Cryptographic Vaults & Databases
+quantum_vault.enc
+forensics.db
+*.sqlite3
+
+# OS/IDE
+.vscode/
+.DS_Store

