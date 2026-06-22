@@ -80,7 +80,7 @@ rule {rule_id} {{
             rule_count += 1
 
         # We can comfortably push 500 rules through YARA without touching the GIL
-        if rule_count >= 500: 
+        if rule_count >= 100000: 
             break
 
     # Write the master .yar file
