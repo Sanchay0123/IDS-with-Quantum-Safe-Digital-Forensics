@@ -1,6 +1,8 @@
 # SENTINEL_QS: Quantum-Safe Hybrid Intrusion Detection System
 
-![SENTINEL_QS Dashboard](https://via.placeholder.com/1000x500.png?text=SENTINEL_QS+Dashboard+Preview) *(Note: Replace with an actual screenshot of your UI)*
+![SENTINEL_QS Dashboard]
+<img width="1600" height="1280" alt="screen" src="https://github.com/user-attachments/assets/4bd35ce8-9b3a-4d12-9487-c79bb616de2d" />
+
 
 SENTINEL_QS is a high-velocity, multi-layered Intrusion Detection System (IDS) architected for modern Linux environments. It combines the deterministic precision of native C-compiled YARA rules with unsupervised machine learning and Shannon entropy analysis. 
 
