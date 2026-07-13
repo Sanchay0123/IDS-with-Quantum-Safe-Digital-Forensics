@@ -6,8 +6,6 @@ from collections import Counter
 from datetime import datetime, timezone
 from scapy.all import IP, TCP, UDP, Raw
 
-# In core/pipeline.py
-
 class DualEnginePipeline:
     def __init__(self, rules_file="matrix.yar"):
         print("[*] Initializing Native C YARA Engine...")
@@ -20,18 +18,22 @@ class DualEnginePipeline:
         matches = self.rules.match(data=packet_bytes)
         if matches:
             best_match = matches[0]
-            # Use deterministic threat signature as the unique key
-            threat_name = best_match.rule
-            cache_key = f"dedup:{threat_name}"
             
-            # Atomic lock: if we already saw this specific YARA rule, return None
+            # --- METADATA EXTRACTION ---
+            severity_level = best_match.meta.get('severity', 'HIGH')
+            human_readable_name = best_match.meta.get('description', 'Unknown Exploit Signature')
+            
+            cache_key = f"dedup:{best_match.rule}"
+            
             if not self.redis.set(cache_key, "1", ex=2, nx=True):
                 return None
                 
+            # --- UI MAPPING ---
             return {
-                "engine": f"YARA-C ({best_match.rule})",
-                "threat_name": threat_name,
-                "severity": "HIGH",
+                "engine": "YARA-C",
+                "threat_name": f"YARA-C ({best_match.rule})",
+                "description": human_readable_name,
+                "severity": severity_level,
                 "timestamp": datetime.now(timezone.utc).isoformat()
             }
         return None
@@ -42,9 +44,6 @@ class AnomalyEngine:
         self.redis = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
         
     def extract_features(self, packet_bytes: bytes) -> list | None:
-        """
-        Translates raw packet bytes into a mathematical vector: [size, protocol, flags, delta_t]
-        """
         try:
             packet = IP(packet_bytes)
             size = len(packet_bytes)
@@ -68,12 +67,10 @@ class AnomalyEngine:
                 
             self.redis.set(redis_key, current_time, ex=3600)
             
-            feature_vector = [size, protocol, flags, round(delta_t, 4)]
-            return feature_vector
+            return [size, protocol, flags, round(delta_t, 4)]
             
         except Exception:
             return None
-
 
 class EntropyEngine:
     def __init__(self, threshold=7.5):
@@ -81,21 +78,16 @@ class EntropyEngine:
         self.threshold = threshold
 
     def analyze(self, packet_bytes: bytes) -> dict | None:
-        """
-        Calculates Shannon Entropy on the RAW PAYLOAD to flag encrypted exfiltration.
-        """
         if not packet_bytes:
             return None
 
         try:
             packet = IP(packet_bytes)
             
-            # We must strip away the low-entropy IP/TCP/UDP headers
-            # and ONLY analyze the application layer payload.
             if Raw in packet:
                 payload = bytes(packet[Raw])
             else:
-                return None # No payload to analyze
+                return None 
                 
             if not payload:
                 return None
@@ -106,15 +98,16 @@ class EntropyEngine:
             entropy = -sum((count / length) * math.log2(count / length) for count in counts.values())
             
             if entropy >= self.threshold:
+                # --- UI MAPPING ---
                 return {
-                    "engine": "Entropy Engine",
-                    "threat_name": f"High Entropy Payload ({entropy:.2f}/8.0)",
+                    "engine": "ENTROPY-ANALYSIS",
+                    "threat_name": "CRYPTOGRAPHIC ANOMALY DETECTED",
+                    "description": f"High Shannon Entropy Payload ({entropy:.2f}/8.0) indicating potential encrypted exfiltration.",
                     "severity": "HIGH",
                     "timestamp": datetime.now(timezone.utc).isoformat()
                 }
                 
         except Exception:
-            # Drop malformed packets
             pass
             
         return None

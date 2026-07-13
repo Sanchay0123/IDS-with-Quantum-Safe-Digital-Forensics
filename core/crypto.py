@@ -21,6 +21,17 @@ class QuantumForensicCrypto:
         # Generates a valid cryptographic signature confirming data source integrity
         return self.signer.sign(log_data)
 
+    def verify_signature(self, message: bytes, signature: bytes) -> bool:
+        """
+        Verifies the ML-DSA signature against the payload using the active public key.
+        """
+        try:
+            # liboqs requires the message, the signature, and the public key to run the math
+            return self.signer.verify(message, signature, self.dsa_public_key)
+        except Exception:
+            # If the C-wrapper throws any verification error, the chain of custody is broken.
+            return False
+
     def encrypt_payload(self, payload: bytes) -> tuple[bytes, bytes]:
         """
         Executes an ML-KEM key encapsulation to safely derive an ephemeral symmetric key,
@@ -41,5 +52,5 @@ class QuantumForensicCrypto:
 
     def close(self):
         """Safely clear native structures from memory."""
-        self.signer.free()
-        self.kem.free()
+        if hasattr(self, 'signer'): self.signer.free()
+        if hasattr(self, 'kem'): self.kem.free()

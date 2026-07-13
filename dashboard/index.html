@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>SENTINEL_QS - Threat Matrix</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<style>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>SENTINEL_QS - Threat Matrix</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style>
         body {
             font-family: 'Courier Prime', monospace;
             background-color: #0d1117;
@@ -20,7 +21,7 @@
         .terminal-glow { text-shadow: 0 0 5px rgba(179, 255, 179, 0.3); }
         .hidden-view { display: none !important; }
     </style>
-<script id="tailwind-config">
+    <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
@@ -44,134 +45,135 @@
     </script>
 </head>
 <body class="bg-background-main selection:bg-primary-container selection:text-[#006823] overflow-hidden h-screen flex flex-col">
-<header class="bg-surface border-b border-outline-variant flex justify-between items-center w-full px-6 py-4 sticky top-0 z-50">
-<div class="flex items-center gap-6">
-<span class="text-[24px] font-bold text-primary uppercase tracking-widest terminal-glow">SENTINEL_QS</span>
-<div class="h-6 w-[1px] bg-outline-variant"></div>
-<h1 class="text-[18px] font-bold tracking-widest uppercase text-on-surface" id="current-view-title">Live Feed</h1>
-</div>
-<div class="flex items-center gap-8">
-<div id="ws-status-badge" class="flex items-center gap-3 px-3 py-1.5 border border-status-warning/30 rounded bg-status-warning/5 transition-colors">
-<span class="relative flex h-2.5 w-2.5">
-<span id="ws-status-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-warning opacity-75"></span>
-<span id="ws-status-dot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-status-warning"></span>
-</span>
-<span id="ws-status-text" class="text-[12px] text-status-warning uppercase tracking-wider">Connecting...</span>
-</div>
-<div class="flex items-center gap-4 text-on-surface-variant">
-<button class="hover:bg-surface-container-highest transition-colors p-2 rounded"><span class="material-symbols-outlined">terminal</span></button>
-<button class="hover:bg-surface-container-highest transition-colors p-2 rounded"><span class="material-symbols-outlined">settings</span></button>
-</div>
-</div>
-</header>
-
-<div class="flex flex-1 overflow-hidden">
-<aside class="bg-surface-container border-r border-outline-variant flex flex-col h-full py-6 w-64 hidden md:flex">
-<div class="px-6 mb-8">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 bg-surface-container-highest border border-outline-variant flex items-center justify-center rounded-sm">
-<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">security</span>
-</div>
-<div>
-<div class="text-[18px] font-bold text-primary leading-tight">NODE_01</div>
-<div class="text-[12px] text-on-surface-variant uppercase opacity-70">Level 4 Clearance</div>
-</div>
-</div>
-</div>
-<nav class="flex-1 px-2 space-y-1">
-<button onclick="switchView('live')" id="nav-live" class="w-full bg-primary-container text-[#006823] border-l-4 border-primary px-4 py-3 flex items-center gap-3 transition-all duration-150">
-<span class="material-symbols-outlined">sensors</span>
-<span class="text-[14px] uppercase font-bold">Live Feed</span>
-</button>
-<button onclick="switchView('archive')" id="nav-archive" class="w-full text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:text-primary hover:bg-surface-container-highest border-l-4 border-transparent transition-all duration-150">
-<span class="material-symbols-outlined">inventory_2</span>
-<span class="text-[14px] uppercase font-bold">Master Archive</span>
-</button>
-<button onclick="switchView('entropy')" id="nav-entropy" class="w-full text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:text-primary hover:bg-surface-container-highest border-l-4 border-transparent transition-all duration-150">
-<span class="material-symbols-outlined">query_stats</span>
-<span class="text-[14px] uppercase font-bold">Entropy Analysis</span>
-</button>
-</nav>
-<div class="px-4 mt-auto space-y-6">
-
-</div>
-</aside>
-
-<main class="flex-1 flex flex-col overflow-hidden relative">
-<div class="flex-1 p-6 overflow-y-auto custom-scrollbar z-10">
-<div class="grid grid-cols-12 gap-4">
-<div class="col-span-12 lg:col-span-8 relative">
-    
-    <div id="view-live" class="space-y-4">
-        <div class="flex items-center gap-2 mb-4">
-            <span class="w-2 h-2 rounded-full bg-status-critical glow-active"></span>
-            <span class="text-primary font-bold uppercase tracking-wider text-[14px]">Real-Time Monitoring</span>
+    <header class="bg-surface border-b border-outline-variant flex justify-between items-center w-full px-6 py-4 sticky top-0 z-50">
+        <div class="flex items-center gap-6">
+            <span class="text-[24px] font-bold text-primary uppercase tracking-widest terminal-glow">SENTINEL_QS</span>
+            <div class="h-6 w-[1px] bg-outline-variant"></div>
+            <h1 class="text-[18px] font-bold tracking-widest uppercase text-on-surface" id="current-view-title">Live Feed</h1>
         </div>
-        <div id="live-feed" class="space-y-4">
-            <div id="live-empty" class="text-on-surface-variant italic py-4">Awaiting live network events...</div>
-        </div>
-    </div>
-
-    <div id="view-archive" class="space-y-4 hidden-view">
-        <div class="flex items-center gap-2 mb-4">
-            <span class="material-symbols-outlined text-primary text-[18px]">inventory_2</span>
-            <span class="text-primary font-bold uppercase tracking-wider text-[14px]">Global Forensic Database</span>
-        </div>
-        <div id="archive-feed" class="space-y-4">
-            <div id="archive-empty" class="text-on-surface-variant italic py-4">Loading historical forensics...</div>
-        </div>
-    </div>
-
-    <div id="view-entropy" class="space-y-4 hidden-view">
-        <div class="flex items-center gap-2 mb-4">
-            <span class="material-symbols-outlined text-[#d29922] text-[18px]">query_stats</span>
-            <span class="text-[#d29922] font-bold uppercase tracking-wider text-[14px]">Cryptographic Chaos Detection</span>
-        </div>
-        <div id="entropy-feed" class="space-y-4">
-            <div id="entropy-empty" class="text-on-surface-variant italic py-4">No high-entropy payloads detected.</div>
-        </div>
-    </div>
-
-</div>
-
-<div class="col-span-12 lg:col-span-4 space-y-4">
-    <div class="bg-surface-card border border-outline-variant p-6 rounded">
-        <h4 class="text-primary font-bold uppercase tracking-widest text-[12px] mb-4 border-b border-outline-variant pb-2">Engine Status</h4>
-        <div class="space-y-4">
-            <div class="flex justify-between items-center">
-                <span class="text-[14px] uppercase text-on-surface-variant">YARA Deterministic</span>
-                <span class="text-[16px] font-bold text-primary">ONLINE</span>
+        <div class="flex items-center gap-8">
+            <div id="ws-status-badge" class="flex items-center gap-3 px-3 py-1.5 border border-status-warning/30 rounded bg-status-warning/5 transition-colors">
+                <span class="relative flex h-2.5 w-2.5">
+                    <span id="ws-status-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-warning opacity-75"></span>
+                    <span id="ws-status-dot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-status-warning"></span>
+                </span>
+                <span id="ws-status-text" class="text-[12px] text-status-warning uppercase tracking-wider">Connecting...</span>
             </div>
-            <div class="flex justify-between items-center">
-                <span class="text-[14px] uppercase text-on-surface-variant">ML Isolation Forest</span>
-                <span class="text-[16px] font-bold text-primary">ONLINE</span>
-            </div>
-            <div class="flex justify-between items-center">
-                <span class="text-[14px] uppercase text-on-surface-variant">Shannon Entropy</span>
-                <span class="text-[16px] font-bold text-[#d29922]">ACTIVE (H>7.5)</span>
+            <div class="flex items-center gap-4 text-on-surface-variant">
+                <button class="hover:bg-surface-container-highest transition-colors p-2 rounded"><span class="material-symbols-outlined">terminal</span></button>
+                <button class="hover:bg-surface-container-highest transition-colors p-2 rounded"><span class="material-symbols-outlined">settings</span></button>
             </div>
         </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <aside class="bg-surface-container border-r border-outline-variant flex flex-col h-full py-6 w-64 hidden md:flex">
+            <div class="px-6 mb-8">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-surface-container-highest border border-outline-variant flex items-center justify-center rounded-sm">
+                        <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">security</span>
+                    </div>
+                    <div>
+                        <div class="text-[18px] font-bold text-primary leading-tight">NODE_01</div>
+                        <div class="text-[12px] text-on-surface-variant uppercase opacity-70">Level 4 Clearance</div>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex-1 px-2 space-y-1">
+                <button onclick="switchView('live')" id="nav-live" class="w-full bg-primary-container text-[#006823] border-l-4 border-primary px-4 py-3 flex items-center gap-3 transition-all duration-150">
+                    <span class="material-symbols-outlined">sensors</span>
+                    <span class="text-[14px] uppercase font-bold">Live Feed</span>
+                </button>
+                <button onclick="switchView('archive')" id="nav-archive" class="w-full text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:text-primary hover:bg-surface-container-highest border-l-4 border-transparent transition-all duration-150">
+                    <span class="material-symbols-outlined">inventory_2</span>
+                    <span class="text-[14px] uppercase font-bold">Master Archive</span>
+                </button>
+                <button onclick="switchView('entropy')" id="nav-entropy" class="w-full text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:text-primary hover:bg-surface-container-highest border-l-4 border-transparent transition-all duration-150">
+                    <span class="material-symbols-outlined">query_stats</span>
+                    <span class="text-[14px] uppercase font-bold">Entropy Analysis</span>
+                </button>
+            </nav>
+            <div class="px-4 mt-auto space-y-4">
+                <button id="btn-export-pdf" class="w-full py-3 border border-primary text-primary hover:bg-primary hover:text-[#006823] transition-all uppercase font-bold tracking-tighter text-[14px] flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span> Export Report
+                </button>
+                
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col overflow-hidden relative">
+            <div class="flex-1 p-6 overflow-y-auto custom-scrollbar z-10">
+                <div class="grid grid-cols-12 gap-4">
+                    
+                    <div class="col-span-12 lg:col-span-8 relative">
+                        <div id="view-live" class="space-y-4">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="w-2 h-2 rounded-full bg-status-critical glow-active"></span>
+                                <span class="text-primary font-bold uppercase tracking-wider text-[14px]">Real-Time Monitoring</span>
+                            </div>
+                            <div id="live-feed" class="space-y-4">
+                                <div id="live-empty" class="text-on-surface-variant italic py-4">Awaiting live network events...</div>
+                            </div>
+                        </div>
+
+                        <div id="view-archive" class="space-y-4 hidden-view">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="material-symbols-outlined text-primary text-[18px]">inventory_2</span>
+                                <span class="text-primary font-bold uppercase tracking-wider text-[14px]">Global Forensic Database</span>
+                            </div>
+                            <div id="archive-feed" class="space-y-4">
+                                <div id="archive-empty" class="text-on-surface-variant italic py-4">Loading historical forensics...</div>
+                            </div>
+                        </div>
+
+                        <div id="view-entropy" class="space-y-4 hidden-view">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="material-symbols-outlined text-[#d29922] text-[18px]">query_stats</span>
+                                <span class="text-[#d29922] font-bold uppercase tracking-wider text-[14px]">Cryptographic Chaos Detection</span>
+                            </div>
+                            <div id="entropy-feed" class="space-y-4">
+                                <div id="entropy-empty" class="text-on-surface-variant italic py-4">No high-entropy payloads detected.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-12 lg:col-span-4 space-y-4">
+                        <div class="bg-surface-card border border-outline-variant p-6 rounded">
+                            <h4 class="text-primary font-bold uppercase tracking-widest text-[12px] mb-4 border-b border-outline-variant pb-2">Engine Status</h4>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[14px] uppercase text-on-surface-variant">YARA Deterministic</span>
+                                    <span class="text-[16px] font-bold text-primary">ONLINE</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[14px] uppercase text-on-surface-variant">ML Isolation Forest</span>
+                                    <span class="text-[16px] font-bold text-primary">ONLINE</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[14px] uppercase text-on-surface-variant">Shannon Entropy</span>
+                                    <span class="text-[16px] font-bold text-[#d29922]">ACTIVE (H>7.5)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-surface-card border border-outline-variant p-4 rounded h-64 overflow-hidden flex flex-col">
+                            <h4 class="text-primary font-bold uppercase tracking-widest text-[12px] mb-2">Internal Pipeline Log</h4>
+                            <div id="internal-log" class="flex-1 overflow-y-auto custom-scrollbar font-[Courier_Prime] text-[10px] text-on-surface-variant/60 leading-relaxed bg-surface-container-highest p-2 border border-outline-variant">
+                                <div>[INIT] SEC_KERNEL_0: PQC ENGINE START</div>
+                                <div>[INIT] ML-KEM: KeyPair bounded</div>
+                                <div>[INIT] ML-DSA: Signature mechanism armed</div>
+                                <div class="animate-pulse text-primary mt-2">> AWAITING INGESTION...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <div class="bg-surface-card border border-outline-variant p-4 rounded h-64 overflow-hidden flex flex-col">
-        <h4 class="text-primary font-bold uppercase tracking-widest text-[12px] mb-2">Internal Pipeline Log</h4>
-        <div id="internal-log" class="flex-1 overflow-y-auto custom-scrollbar font-[Courier_Prime] text-[10px] text-on-surface-variant/60 leading-relaxed bg-surface-container-highest p-2 border border-outline-variant">
-            <div>[INIT] SEC_KERNEL_0: PQC ENGINE START</div>
-            <div>[INIT] ML-KEM: KeyPair bounded</div>
-            <div>[INIT] ML-DSA: Signature mechanism armed</div>
-            <div class="animate-pulse text-primary mt-2">> AWAITING INGESTION...</div>
-        </div>
-    </div>
-</div>
-</div>
-</div>
-</main>
-</div>
+    <div class="fixed inset-0 pointer-events-none opacity-[0.03] z-[-1]" style="background-image: linear-gradient(#7ee787 1px, transparent 1px), linear-gradient(90deg, #7ee787 1px, transparent 1px); background-size: 40px 40px;"></div>
 
-<div class="fixed inset-0 pointer-events-none opacity-[0.03] z-[-1]" style="background-image: linear-gradient(#7ee787 1px, transparent 1px), linear-gradient(90deg, #7ee787 1px, transparent 1px); background-size: 40px 40px;"></div>
-
-<script>
-        // DOM Elements
+    <script>
         const views = {
             live: document.getElementById('view-live'),
             archive: document.getElementById('view-archive'),
@@ -193,15 +195,12 @@
             entropy: document.getElementById('entropy-empty')
         };
         
-        // Navigation Logic
         function switchView(target) {
-            // Hide all views, reset all navs
             Object.keys(views).forEach(key => {
                 views[key].classList.add('hidden-view');
                 navs[key].className = "w-full text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:text-primary hover:bg-surface-container-highest border-l-4 border-transparent transition-all duration-150";
             });
 
-            // Activate Target
             views[target].classList.remove('hidden-view');
             navs[target].className = "w-full bg-primary-container text-[#006823] border-l-4 border-primary px-4 py-3 flex items-center gap-3 transition-all duration-150";
             
@@ -209,7 +208,6 @@
             document.getElementById('current-view-title').innerText = titles[target];
         }
 
-        // Color Routing
         function getSeverityClasses(severity, engine) {
             if (engine && engine.includes('Entropy')) return 'bg-status-warning/10 text-status-warning border-status-warning';
             if (severity === 'CRITICAL') return 'bg-status-critical/10 text-status-critical border-status-critical';
@@ -235,11 +233,16 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
                         <div class="space-y-1">
                             <div class="text-[10px] ${isEntropy ? 'text-status-warning' : 'text-primary'} uppercase font-bold tracking-widest">[ML-KEM ENVELOPE]</div>
-                            <div class="bg-[#090c10] border border-outline-variant p-3 font-[Courier_Prime] text-[11px] text-on-surface-variant/80 overflow-x-auto whitespace-pre break-all custom-scrollbar">${data.kem_envelope}</div>
+                            <div class="bg-[#090c10] border border-outline-variant p-3 font-[Courier_Prime] text-[11px] text-on-surface-variant/80 overflow-x-auto whitespace-pre break-all custom-scrollbar h-20">${data.kem_envelope || 'N/A'}</div>
                         </div>
-                        <div class="space-y-1">
-                            <div class="text-[10px] ${isEntropy ? 'text-status-warning' : 'text-primary'} uppercase font-bold tracking-widest">[ML-DSA SIGNATURE]</div>
-                            <div class="bg-[#090c10] border border-outline-variant p-3 font-[Courier_Prime] text-[11px] text-on-surface-variant/80 overflow-x-auto whitespace-pre break-all custom-scrollbar">${data.mldsa_signature}</div>
+                        <div class="space-y-1 relative">
+                            <div class="flex justify-between items-center">
+                                <div class="text-[10px] ${isEntropy ? 'text-status-warning' : 'text-primary'} uppercase font-bold tracking-widest">[ML-DSA SIGNATURE]</div>
+                                <button onclick="verifySignature('${data.threat_name}', '${data.kem_envelope}', '${data.mldsa_signature}', this)" class="text-[9px] bg-surface-container-highest hover:bg-primary/20 hover:text-primary transition-colors px-2 py-0.5 border border-outline-variant rounded uppercase font-bold tracking-widest cursor-pointer">
+                                    Verify Integrity
+                                </button>
+                            </div>
+                            <div class="bg-[#090c10] border border-outline-variant p-3 font-[Courier_Prime] text-[11px] text-on-surface-variant/80 overflow-x-auto whitespace-pre break-all custom-scrollbar h-20">${data.mldsa_signature || 'N/A'}</div>
                         </div>
                     </div>
                 </div>
@@ -249,7 +252,6 @@
             return wrapper.firstChild;
         }
 
-        // Add internal log entry
         function addLogEntry(engine) {
             const logBox = document.getElementById('internal-log');
             const time = new Date().toLocaleTimeString('en-US', { hour12: false });
@@ -259,7 +261,6 @@
             if(logBox.children.length > 20) logBox.removeChild(logBox.children[0]);
         }
 
-        // WebSocket Status
         function updateStatus(state) {
             const text = document.getElementById('ws-status-text');
             const badge = document.getElementById('ws-status-badge');
@@ -281,7 +282,6 @@
             }
         }
 
-        // 1. Fetch History
         fetch('http://localhost:8000/api/history')
             .then(res => res.ok ? res.json() : Promise.reject())
             .then(logs => {
@@ -304,7 +304,6 @@
                 connectWebSocket();
             });
 
-        // 2. Open WebSocket
         function connectWebSocket() {
             const ws = new WebSocket('ws://localhost:8000/ws/alerts');
 
@@ -316,12 +315,10 @@
                 empties.live.style.display = 'none';
                 empties.archive.style.display = 'none';
                 
-                // Route to Live and Archive
                 feeds.live.prepend(createAlertElement(data));
                 feeds.archive.prepend(createAlertElement(data));
                 addLogEntry(data.engine);
 
-                // Route to Entropy Tab if applicable
                 if (data.engine && data.engine.includes('Entropy')) {
                     empties.entropy.style.display = 'none';
                     feeds.entropy.prepend(createAlertElement(data));
@@ -330,6 +327,45 @@
 
             ws.onclose = () => updateStatus('disconnected');
         }
+
+        // --- QoL: ML-DSA Integrity Verification ---
+        async function verifySignature(threatName, kem, mldsa, btnElement) {
+            btnElement.innerText = "VERIFYING...";
+            btnElement.classList.add('animate-pulse', 'text-status-warning');
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        threat_name: threatName,
+                        kem_envelope: kem,
+                        mldsa_signature: mldsa
+                    })
+                });
+                
+                const result = await response.json();
+                
+                btnElement.classList.remove('animate-pulse', 'text-status-warning');
+                if (result.status === "VALID") {
+                    btnElement.innerText = "[ INTEGRITY VERIFIED ]";
+                    btnElement.classList.replace('hover:text-primary', 'text-[#7ee787]');
+                    btnElement.classList.replace('bg-surface-container-highest', 'bg-[#003910]');
+                } else {
+                    btnElement.innerText = "[ TAMPER DETECTED ]";
+                    btnElement.classList.replace('hover:text-primary', 'text-status-critical');
+                    btnElement.classList.replace('bg-surface-container-highest', 'bg-[#690005]');
+                }
+            } catch (e) {
+                btnElement.innerText = "API ERROR";
+                btnElement.classList.remove('animate-pulse');
+            }
+        }
+
+        // --- QoL: PDF Export Hook ---
+        document.getElementById('btn-export-pdf')?.addEventListener('click', () => {
+            window.open('http://localhost:8000/api/report', '_blank');
+        });
     </script>
 </body>
 </html>
